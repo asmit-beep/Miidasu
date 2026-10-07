@@ -2358,3 +2358,19 @@ button,input{font:inherit}
     padding-bottom:12px;
   }
 }
+
+
+/* --- Never truncate editorial text with ellipses --- */
+.tech-stack-row p,
+.latest-card h3,
+.latest-card p,
+.quick-card h3,
+.related-card h3,
+.related-card p{
+  display:block !important;
+  -webkit-line-clamp:unset !important;
+  -webkit-box-orient:initial !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  white-space:normal !important;
+}
