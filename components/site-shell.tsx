@@ -7,8 +7,7 @@ export function SiteHeader({current}:{current?:"home"|"blog"|"about"}) {
         <div className="edge-row topline-inner">
           <span>MIIDASU JOURNAL</span>
           <div className="topline-actions">
-            <a className="micro-link" href="/blog/">Latest</a>
-            <a className="micro-link" href="#newsletter">Subscribe</a>
+            <a className="micro-link" href="/blog/">Latest stories</a>
           </div>
         </div>
       </div>
@@ -70,7 +69,7 @@ export function SiteFooter() {
           <div className="footer-col">
             <span>People</span>
             <a href="/authors/yash/">Yash</a>
-            <a href="/authors/nikita/">Nikita</a>
+            <a href="/authors/ata/">Ata Shaikh</a>
             <a href="/authors/snehil/">Snehil</a>
           </div>
 
