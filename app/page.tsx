@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: { absolute: "Stay curious. Find your perspective. | Miidasu" },
   description: "Thoughts on work, life, and the interesting things in between. Explore the Miidasu journal.",
-  alternates: { canonical: "/" }
+  alternates: { canonical: "https://miidasu.co/" }
 };
 
 function Meta({category,minutes,date}:{category:string;minutes:number|null;date?:string|null}) {
