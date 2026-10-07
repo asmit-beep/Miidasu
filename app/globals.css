@@ -2195,3 +2195,13 @@ button,input{font:inherit}
     font-size:10px;
   }
 }
+
+
+/* Keep the primary navigation visible while the page scrolls */
+.nav-rule{
+  position:sticky;
+  top:0;
+  z-index:80;
+  background:#fff;
+  box-shadow:0 1px 0 rgba(0,0,0,.08);
+}
