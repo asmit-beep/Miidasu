@@ -1,0 +1,7 @@
+import type { Metadata } from "next";
+import { PageFrame } from "@/components/site-shell";
+import { ArchiveRow, StoryMeta } from "@/components/story";
+import { listPublishedArticles } from "@/lib/data";
+export const dynamic="force-dynamic";
+export const metadata:Metadata={title:"Blog",description:"Essays and notes on work, curiosity, and everyday life from the Miidasu journal.",alternates:{canonical:"/blog/"}};
+export default async function BlogPage(){const articles=await listPublishedArticles().catch(()=>[]);const feature=articles[0];return <PageFrame current="blog"><header className="journal-header"><p className="kicker">THE MIIDASU JOURNAL</p><h1>A few things<br/><em>worth thinking about.</em></h1><p>Essays and notes on work, curiosity, and everyday life.</p></header>{feature&&<section className="journal-lead"><a className="media-frame" href={"/blog/"+feature.slug+"/"}>{feature.cover_image_url&&<img src={feature.cover_image_url} alt=""/>}</a><div className="journal-lead-copy"><StoryMeta article={feature}/><h2><a href={"/blog/"+feature.slug+"/"}>{feature.title}</a></h2><p>{feature.excerpt}</p><a className="arrow-link" href={"/blog/"+feature.slug+"/"}>Read the story ↗</a></div></section>}<section className="archive"><div className="archive-head"><span>Latest stories</span><span>{articles.length} articles</span></div>{articles.slice(1).map((a,i)=><ArchiveRow key={a.id} article={a} index={i+2}/>)}</section></PageFrame>}
