@@ -37,9 +37,48 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
   const displayAuthor=article.author.toLowerCase().includes("nikita") ? "Ata Shaikh" : article.author;
   const headings=extractHeadings(article.content||"");
   const body=renderMarkdown(article.content||"");
+  const articleUrl="https://miidasu.co/blog/"+article.slug+"/";
+  const authorUrl=aSlug ? "https://miidasu.co/authors/"+aSlug+"/" : undefined;
+
+  const articleSchema={
+    "@context":"https://schema.org",
+    "@type":"BlogPosting",
+    "headline":article.title,
+    "description":article.meta_description||article.excerpt||articleSummary(article,260),
+    "datePublished":article.published_at||article.created_at,
+    "dateModified":article.updated_at||article.published_at||article.created_at,
+    ...(article.cover_image_url?{"image":[article.cover_image_url]}:{}),
+    "mainEntityOfPage":{"@type":"WebPage","@id":articleUrl},
+    "author":{
+      "@type":"Person",
+      "name":displayAuthor,
+      ...(authorUrl?{"url":authorUrl}:{})
+    },
+    "publisher":{
+      "@type":"Organization",
+      "name":"Miidasu",
+      "url":"https://miidasu.co",
+      "logo":{"@type":"ImageObject","url":"https://miidasu.co/icon-192.png"}
+    },
+    "isPartOf":{"@type":"Blog","@id":"https://miidasu.co/blog/","name":"Miidasu journal"},
+    "inLanguage":"en",
+    "articleSection":article.category||"Journal"
+  };
+
+  const breadcrumbSchema={
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"Home","item":"https://miidasu.co/"},
+      {"@type":"ListItem","position":2,"name":"Blog","item":"https://miidasu.co/blog/"},
+      {"@type":"ListItem","position":3,"name":article.title,"item":articleUrl}
+    ]
+  };
 
   return (
     <PageFrame current="blog">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(articleSchema)}} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(breadcrumbSchema)}} />
       <article className="article-page">
         <header className="full-bleed article-head-wrap">
           <div className={"edge-row article-hero-grid"+(!article.cover_image_url?" no-cover":"")}>
