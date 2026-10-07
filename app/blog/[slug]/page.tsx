@@ -42,23 +42,26 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
     <PageFrame current="blog">
       <article className="article-page">
         <header className="full-bleed article-head-wrap">
-          <div className="edge-row article-head">
-            <div className="article-kicker">{article.category||"Journal"}</div>
-            <h1>{article.title}</h1>
-            <p className="article-excerpt">{articleSummary(article,260)}</p>
-            <div className="article-meta-row">
-              <div><span>By</span>{aSlug?<a href={"/authors/"+aSlug+"/"}>{displayAuthor}</a>:<strong>{displayAuthor}</strong>}</div>
-              <div><span>Published</span><strong>{formatPublishDate(article.published_at)}</strong></div>
-              <div><span>Read time</span><strong>{readLabel(article.read_time_minutes)}</strong></div>
+          <div className={"edge-row article-hero-grid"+(!article.cover_image_url?" no-cover":"")}>
+            <div className="article-hero-copy">
+              <div className="article-kicker">{article.category||"Journal"}</div>
+              <h1>{article.title}</h1>
+              <p className="article-excerpt">{articleSummary(article,260)}</p>
+
+              <div className="article-meta-row">
+                <div><span>By</span>{aSlug?<a href={"/authors/"+aSlug+"/"}>{displayAuthor}</a>:<strong>{displayAuthor}</strong>}</div>
+                <div><span>Published</span><strong>{formatPublishDate(article.published_at)}</strong></div>
+                <div><span>Read time</span><strong>{readLabel(article.read_time_minutes)}</strong></div>
+              </div>
             </div>
+
+            {article.cover_image_url && (
+              <figure className="article-hero-media">
+                <img src={article.cover_image_url} alt="" />
+              </figure>
+            )}
           </div>
         </header>
-
-        {article.cover_image_url && <figure className="full-bleed article-cover-wrap">
-          <div className="article-cover-shell">
-            <div className="article-cover"><img src={article.cover_image_url} alt="" /></div>
-          </div>
-        </figure>}
 
         <section className="full-bleed article-body-wrap">
           <div className="edge-row article-content-grid">
