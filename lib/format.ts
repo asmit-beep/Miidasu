@@ -70,9 +70,10 @@ export function extractHeadings(markdown:string):TocHeading[]{
   for(const raw of markdown.replace(/\r/g,"").split("\n")){
     const match=raw.match(/^(##|###)\s+(.+?)\s*#*$/);
     if(!match)continue;
-    const text=cleanHeadingText(match[2]);
-    if(!text)continue;
-    const base=headingId(text);
+    const rawText=cleanHeadingText(match[2]);
+    if(!rawText)continue;
+    const text=rawText.replace(/^\d+(?:\.\d+)*[\.)]?\s+/,"").trim();
+    const base=headingId(rawText);
     const count=seen.get(base)||0;
     seen.set(base,count+1);
     const id=count ? base+"-"+(count+1) : base;
