@@ -2151,3 +2151,47 @@ button,input{font:inherit}
     max-height:230px;
   }
 }
+
+
+/* --- Correct table breakout: keep left edge on prose, expand RIGHT only --- */
+.article-copy table{
+  width:min(1180px,calc(100vw - var(--edge) - 290px));
+  max-width:none;
+  margin:1.7em 0;
+  margin-left:0;
+  margin-right:0;
+  transform:none;
+  overflow:visible;
+  table-layout:fixed;
+  font-size:clamp(10px,.72vw,12px);
+}
+.article-copy th,
+.article-copy td{
+  min-width:0;
+  max-width:none;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+/* At tablet widths the TOC still owns the left column, so tables use only
+   the remaining width to the RIGHT edge of the viewport. */
+@media(max-width:1100px){
+  .article-copy table{
+    width:calc(100vw - var(--edge) - 250px);
+    margin-left:0;
+    transform:none;
+    font-size:11px;
+  }
+}
+
+/* Once the article becomes a single column, tables simply fit that column. */
+@media(max-width:760px){
+  .article-copy table{
+    width:100%;
+    max-width:100%;
+    margin-left:0;
+    transform:none;
+    font-size:10px;
+  }
+}
