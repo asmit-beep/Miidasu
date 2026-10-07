@@ -2205,3 +2205,75 @@ button,input{font:inherit}
   background:#fff;
   box-shadow:0 1px 0 rgba(0,0,0,.08);
 }
+
+
+/* --- Table sizing by actual column count --- */
+.article-copy table.table-compact{
+  display:table;
+  width:100%;
+  max-width:100%;
+  margin:1.6em 0;
+  margin-left:0;
+  margin-right:0;
+  transform:none;
+  overflow:visible;
+  table-layout:auto;
+  font-size:14px;
+}
+.article-copy table.table-compact th,
+.article-copy table.table-compact td{
+  min-width:0;
+  width:auto;
+  max-width:none;
+  padding:10px 12px;
+  white-space:normal;
+  overflow-wrap:break-word;
+  word-break:normal;
+}
+
+/* Only genuinely wide tables (5+ columns) use the right-side breakout. */
+.article-copy table.table-wide{
+  display:table;
+  width:min(1180px,calc(100vw - var(--edge) - 290px));
+  max-width:none;
+  margin:1.7em 0;
+  margin-left:0;
+  margin-right:0;
+  transform:none;
+  overflow:visible;
+  table-layout:fixed;
+  font-size:clamp(10px,.72vw,12px);
+}
+.article-copy table.table-wide th,
+.article-copy table.table-wide td{
+  min-width:0;
+  width:auto;
+  max-width:none;
+  padding:10px 9px;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+@media(max-width:1100px){
+  .article-copy table.table-wide{
+    width:calc(100vw - var(--edge) - 250px);
+    font-size:11px;
+  }
+  .article-copy table.table-compact{
+    width:100%;
+    font-size:13px;
+  }
+}
+
+@media(max-width:760px){
+  .article-copy table.table-wide,
+  .article-copy table.table-compact{
+    width:100%;
+    max-width:100%;
+    margin-left:0;
+    transform:none;
+    table-layout:auto;
+    font-size:10px;
+  }
+}
