@@ -31,14 +31,6 @@ export default async function HomePage() {
   const deep = articles.filter(a => (a.read_time_minutes ?? 0) >= 15).slice(0,3);
   const stream = articles.slice(0,12);
 
-  const all = featured ? [featured, ...articles] : articles;
-  const categoryCounts = new Map<string,number>();
-  for (const a of all) {
-    const key = a.category || "Journal";
-    categoryCounts.set(key,(categoryCounts.get(key) ?? 0)+1);
-  }
-  const categories = Array.from(categoryCounts.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
-
   return (
     <PageFrame current="home">
       <section className="full-bleed home-intro tech-home-intro">
@@ -66,43 +58,18 @@ export default async function HomePage() {
               <ArticleLink href={"/blog/"+featured.slug+"/"} label="Read the story"/>
             </article>}
 
-            <div className="tech-top-stack">
-              {top.slice(0,2).map(a => <article className="tech-stack-card" key={a.id}>
+            <aside className="tech-top-stack">
+              <div className="panel-title">More Top Stories</div>
+              {top.map((a,i) => <article className="tech-stack-card tech-stack-row" key={a.id}>
+                <span className="stack-index">{String(i+1).padStart(2,"0")}</span>
                 {a.cover_image_url && <a className="stack-media" href={"/blog/"+a.slug+"/"}><img src={a.cover_image_url} alt="" /></a>}
-                <div>
+                <div className="stack-copy">
                   <Meta category={a.category} minutes={a.read_time_minutes}/>
                   <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
-                  <p>{articleSummary(a,145)}</p>
-                </div>
-              </article>)}
-            </div>
-
-            <aside className="tech-briefs">
-              <div className="panel-title">In Brief</div>
-              {top.slice(2,4).map((a,i) => <article className="brief-item" key={a.id}>
-                <span>{String(i+1).padStart(2,"0")}</span>
-                <div>
-                  <Meta category={a.category} minutes={a.read_time_minutes}/>
-                  <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
-                  <p>{articleSummary(a,115)}</p>
+                  <p>{articleSummary(a,125)}</p>
                 </div>
               </article>)}
             </aside>
-          </div>
-        </div>
-      </section>
-
-      <section className="full-bleed topic-snapshot">
-        <div className="edge-row">
-          <div className="section-title-row"><h2>Topics at a glance</h2><span>{all.length} published stories</span></div>
-          <div className="topic-snapshot-grid">
-            {categories.map(([name,count]) => {
-              const pct = all.length ? Math.max(10,Math.round(count/all.length*100)) : 0;
-              return <div className="topic-snapshot-card" key={name}>
-                <div className="topic-top"><strong>{name}</strong><span>{count}</span></div>
-                <div className="topic-track"><span style={{width:pct+"%"}} /></div>
-              </div>
-            })}
           </div>
         </div>
       </section>
