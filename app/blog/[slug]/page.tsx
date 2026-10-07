@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageFrame } from "@/components/site-shell";
 import { getArticleBySlug, listPublishedArticles } from "@/lib/data";
-import { authorSlug, formatPublishDate, markdownToHtml, readLabel } from "@/lib/format";
+import { articleSummary, authorSlug, formatPublishDate, markdownToHtml, readLabel } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
     .filter(a=>a.id!==article.id)
     .slice(0,4);
 
-  const aSlug=authorSlug(article.author);
+  const aSlug=authorSlug(article.author);\n  const displayAuthor=article.author.toLowerCase().includes("nikita") ? "Ata Shaikh" : article.author;
 
   return (
     <PageFrame current="blog">
@@ -41,9 +41,9 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
           <div className="edge-row article-head">
             <div className="article-kicker">{article.category||"Journal"}</div>
             <h1>{article.title}</h1>
-            {article.excerpt && <p className="article-excerpt">{article.excerpt}</p>}
+            <p className="article-excerpt">{articleSummary(article,260)}</p>
             <div className="article-meta-row">
-              <div><span>By</span>{aSlug?<a href={"/authors/"+aSlug+"/"}>{article.author}</a>:<strong>{article.author}</strong>}</div>
+              <div><span>By</span>{aSlug?<a href={"/authors/"+aSlug+"/"}>{displayAuthor}</a>:<strong>{displayAuthor}</strong>}</div>
               <div><span>Published</span><strong>{formatPublishDate(article.published_at)}</strong></div>
               <div><span>Read time</span><strong>{readLabel(article.read_time_minutes)}</strong></div>
             </div>
@@ -83,7 +83,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
               {a.cover_image_url&&<a className="related-media" href={"/blog/"+a.slug+"/"}><img src={a.cover_image_url} alt="" /></a>}
               <div className="card-meta"><span>{a.category}</span><span>{readLabel(a.read_time_minutes)}</span></div>
               <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
-              <p>{a.excerpt}</p>
+              <p>{articleSummary(a,150)}</p>
               <a className="reactive-button text-button" href={"/blog/"+a.slug+"/"}>Read <span>↗</span></a>
             </article>)}
           </div>
