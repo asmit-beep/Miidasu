@@ -32,7 +32,8 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
     .filter(a=>a.id!==article.id)
     .slice(0,4);
 
-  const aSlug=authorSlug(article.author);\n  const displayAuthor=article.author.toLowerCase().includes("nikita") ? "Ata Shaikh" : article.author;
+  const aSlug=authorSlug(article.author);
+  const displayAuthor=article.author.toLowerCase().includes("nikita") ? "Ata Shaikh" : article.author;
 
   return (
     <PageFrame current="blog">
