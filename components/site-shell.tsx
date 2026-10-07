@@ -19,17 +19,17 @@ export function SiteHeader({current}:{current?:"home"|"blog"|"about"}) {
           <a className="header-action reactive-button solid-button" href="#newsletter">Subscribe <span>↗</span></a>
         </div>
 
-        <div className="nav-rule">
-          <nav className="edge-row main-nav" aria-label="Main navigation">
-            <a href="/" aria-current={current==="home" ? "page" : undefined}>Home</a>
-            <a href="/blog/" aria-current={current==="blog" ? "page" : undefined}>Journal</a>
-            <a href="/about/" aria-current={current==="about" ? "page" : undefined}>About</a>
-            <a href="/authors/yash/">Authors</a>
-            <a href="/contact/">Contact</a>
-            <a href="/privacy/">Privacy</a>
-          </nav>
-        </div>
       </header>
+
+      <div className="nav-rule">
+        <nav className="edge-row main-nav" aria-label="Main navigation">
+          <a href="/" aria-current={current==="home" ? "page" : undefined}>Home</a>
+          <a href="/blog/" aria-current={current==="blog" ? "page" : undefined}>Journal</a>
+          <a href="/about/" aria-current={current==="about" ? "page" : undefined}>About</a>
+          <a href="/authors/yash/">Authors</a>
+          <a href="/contact/">Contact</a>
+        </nav>
+      </div>
     </>
   );
 }
