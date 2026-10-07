@@ -1,30 +1,57 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { TocHeading } from "@/lib/format";
 
 export function ArticleToc({headings}:{headings:TocHeading[]}) {
   const ids=useMemo(()=>headings.map(h=>h.id),[headings]);
   const [active,setActive]=useState(ids[0]||"");
+  const linksRef=useRef<HTMLDivElement>(null);
 
   useEffect(()=>{
     if(!ids.length)return;
-    const elements=ids.map(id=>document.getElementById(id)).filter(Boolean) as HTMLElement[];
-    if(!elements.length)return;
 
-    const observer=new IntersectionObserver((entries)=>{
-      const visible=entries
-        .filter(entry=>entry.isIntersecting)
-        .sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);
-      if(visible[0]?.target?.id)setActive(visible[0].target.id);
-    },{
-      rootMargin:"-18% 0px -68% 0px",
-      threshold:[0,1]
-    });
+    const updateActive=()=>{
+      let current=ids[0]||"";
+      const threshold=Math.max(120,window.innerHeight*.22);
 
-    elements.forEach(el=>observer.observe(el));
-    return ()=>observer.disconnect();
+      for(const id of ids){
+        const el=document.getElementById(id);
+        if(!el)continue;
+        if(el.getBoundingClientRect().top<=threshold)current=id;
+        else break;
+      }
+
+      if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-6){
+        current=ids[ids.length-1]||current;
+      }
+
+      setActive(current);
+    };
+
+    updateActive();
+    window.addEventListener("scroll",updateActive,{passive:true});
+    window.addEventListener("resize",updateActive);
+
+    return ()=>{
+      window.removeEventListener("scroll",updateActive);
+      window.removeEventListener("resize",updateActive);
+    };
   },[ids]);
+
+  useEffect(()=>{
+    const container=linksRef.current;
+    if(!container||!active)return;
+
+    const link=container.querySelector<HTMLAnchorElement>('a[data-toc-id="'+active+'"]');
+    if(!link)return;
+
+    const target=link.offsetTop-(container.clientHeight/2)+(link.offsetHeight/2);
+    container.scrollTo({
+      top:Math.max(0,target),
+      behavior:"smooth"
+    });
+  },[active]);
 
   if(!headings.length)return null;
 
@@ -34,10 +61,11 @@ export function ArticleToc({headings}:{headings:TocHeading[]}) {
         <span>On this page</span>
         <span>{headings.length}</span>
       </div>
-      <div className="toc-links">
+      <div className="toc-links" ref={linksRef}>
         {headings.map(item=>(
           <a
             key={item.id}
+            data-toc-id={item.id}
             className={(item.level===3?"toc-link toc-link-sub":"toc-link")+(active===item.id?" is-active":"")}
             href={"#"+item.id}
             onClick={()=>setActive(item.id)}
