@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageFrame } from "@/components/site-shell";
 import { listPublishedArticles } from "@/lib/data";
-import { formatPublishDate, readLabel } from "@/lib/format";
+import { articleSummary, formatPublishDate, readLabel } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -11,59 +11,65 @@ export const metadata: Metadata = {
   alternates: { canonical: "/blog/" }
 };
 
+function Meta({category,minutes,date}:{category:string;minutes:number|null;date?:string|null}) {
+  return <div className="card-meta"><span>{category || "Journal"}</span><span>{readLabel(minutes)}</span>{date&&<span>{formatPublishDate(date)}</span>}</div>;
+}
+
 export default async function BlogPage() {
   const articles = await listPublishedArticles().catch(() => []);
   const lead = articles[0];
-  const popular = articles.slice(1,5);
-  const rest = articles.slice(5);
+  const side = articles.slice(1,4);
+  const feed = articles.slice(4);
 
   return (
     <PageFrame current="blog">
-      <header className="full-bleed journal-title-wrap">
+      <header className="full-bleed journal-title-wrap tech-journal-title">
         <div className="edge-row journal-title">
-          <p className="eyebrow">THE MIIDASU JOURNAL</p>
+          <p className="eyebrow">MIIDASU / JOURNAL</p>
           <div className="journal-title-grid">
-            <h1>A few things <em>worth thinking about.</em></h1>
-            <p>Essays and notes on work, curiosity, and everyday life.</p>
+            <h1>Technology, systems, tools, and the <em>decisions behind them.</em></h1>
+            <p>Practical explainers, comparisons, and perspectives with the answer up front and the context underneath it.</p>
           </div>
         </div>
       </header>
 
       {lead && <section className="full-bleed journal-lead-wrap">
-        <div className="edge-row journal-lead-card">
-          {lead.cover_image_url && <a className="journal-lead-media" href={"/blog/"+lead.slug+"/"}><img src={lead.cover_image_url} alt="" /></a>}
-          <div className="journal-lead-copy">
-            <div className="card-meta"><span>{lead.category}</span><span>{readLabel(lead.read_time_minutes)}</span><span>{formatPublishDate(lead.published_at)}</span></div>
+        <div className="edge-row tech-blog-lead">
+          <article className="blog-lead-main">
+            {lead.cover_image_url && <a className="journal-lead-media" href={"/blog/"+lead.slug+"/"}><img src={lead.cover_image_url} alt="" /></a>}
+            <Meta category={lead.category} minutes={lead.read_time_minutes} date={lead.published_at}/>
             <h2><a href={"/blog/"+lead.slug+"/"}>{lead.title}</a></h2>
-            <p>{lead.excerpt}</p>
+            <p>{articleSummary(lead,230)}</p>
             <a className="reactive-button text-button" href={"/blog/"+lead.slug+"/"}>Read the story <span>↗</span></a>
-          </div>
-        </div>
-      </section>}
+          </article>
 
-      {popular.length>0 && <section className="full-bleed popular-strip">
-        <div className="edge-row">
-          <div className="section-title-row"><h2>Popular Right Now</h2><span>Worth opening next</span></div>
-          <div className="popular-grid">
-            {popular.map((a,i)=><article className="popular-card" key={a.id}>
-              <span className="popular-index">{String(i+1).padStart(2,"0")}</span>
-              <div className="card-meta"><span>{a.category}</span><span>{readLabel(a.read_time_minutes)}</span></div>
-              <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
+          <aside className="blog-lead-side">
+            <div className="panel-title">More to read</div>
+            {side.map((a,i)=><article className="blog-side-row" key={a.id}>
+              <span>{String(i+1).padStart(2,"0")}</span>
+              <div>
+                <Meta category={a.category} minutes={a.read_time_minutes}/>
+                <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
+                <p>{articleSummary(a,120)}</p>
+              </div>
             </article>)}
-          </div>
+          </aside>
         </div>
       </section>}
 
-      <section className="full-bleed journal-list-wrap">
+      <section className="full-bleed journal-feed-wrap">
         <div className="edge-row">
-          <div className="section-title-row"><h2>All Stories</h2><span>{articles.length} articles</span></div>
-          <div className="journal-grid">
-            {rest.map(a => <article className="journal-card" key={a.id}>
-              {a.cover_image_url && <a className="journal-card-media" href={"/blog/"+a.slug+"/"}><img src={a.cover_image_url} alt="" /></a>}
-              <div className="card-meta"><span>{a.category}</span><span>{readLabel(a.read_time_minutes)}</span></div>
-              <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
-              <p>{a.excerpt}</p>
-              <div className="journal-card-foot"><span>{formatPublishDate(a.published_at)}</span><a href={"/blog/"+a.slug+"/"}>Read ↗</a></div>
+          <div className="section-title-row"><h2>Latest Stories</h2><span>{articles.length} published</span></div>
+          <div className="tech-feed">
+            {feed.map((a,i)=><article className="tech-feed-row" key={a.id}>
+              <span className="feed-index">{String(i+1).padStart(2,"0")}</span>
+              {a.cover_image_url && <a className="feed-media" href={"/blog/"+a.slug+"/"}><img src={a.cover_image_url} alt="" /></a>}
+              <div className="feed-copy">
+                <Meta category={a.category} minutes={a.read_time_minutes} date={a.published_at}/>
+                <h2><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h2>
+                <p>{articleSummary(a,190)}</p>
+              </div>
+              <a className="feed-open reactive-button" href={"/blog/"+a.slug+"/"} aria-label={"Read "+a.title}>↗</a>
             </article>)}
           </div>
         </div>
