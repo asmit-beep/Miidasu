@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageFrame } from "@/components/site-shell";
+import { ArticleToc } from "@/components/article-toc";
 import { getArticleBySlug, listPublishedArticles } from "@/lib/data";
-import { articleSummary, authorSlug, formatPublishDate, markdownToHtml, readLabel } from "@/lib/format";
+import { articleSummary, authorSlug, extractHeadings, formatPublishDate, renderMarkdown, readLabel } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
   const {slug}=await params;
   const article=await getArticleBySlug(slug).catch(()=>null);
-  if(!article) return {};
+  if(!article)return {};
   return {
     title:article.meta_title||article.title,
     description:article.meta_description||article.excerpt,
@@ -26,7 +27,7 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
 export default async function ArticlePage({params}:{params:Promise<{slug:string}>}) {
   const {slug}=await params;
   const article=await getArticleBySlug(slug).catch(()=>null);
-  if(!article) notFound();
+  if(!article)notFound();
 
   const related=(await listPublishedArticles().catch(()=>[]))
     .filter(a=>a.id!==article.id)
@@ -34,6 +35,8 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
 
   const aSlug=authorSlug(article.author);
   const displayAuthor=article.author.toLowerCase().includes("nikita") ? "Ata Shaikh" : article.author;
+  const headings=extractHeadings(article.content||"");
+  const body=renderMarkdown(article.content||"");
 
   return (
     <PageFrame current="blog">
@@ -52,17 +55,18 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
         </header>
 
         {article.cover_image_url && <figure className="full-bleed article-cover-wrap">
-          <div className="edge-row article-cover"><img src={article.cover_image_url} alt="" /></div>
+          <div className="article-cover-shell">
+            <div className="article-cover"><img src={article.cover_image_url} alt="" /></div>
+          </div>
         </figure>}
 
         <section className="full-bleed article-body-wrap">
           <div className="edge-row article-content-grid">
             <aside className="article-side">
-              <span>MIIDASU JOURNAL</span>
-              <a className="reactive-button text-button" href="/blog/">All stories <span>↗</span></a>
+              <ArticleToc headings={headings}/>
             </aside>
 
-            <div className="article-copy" dangerouslySetInnerHTML={{__html:markdownToHtml(article.content||"")}} />
+            <div className="article-copy" dangerouslySetInnerHTML={{__html:body}} />
 
             <aside className="article-context">
               <div className="context-card">
@@ -70,6 +74,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
                 <strong>{article.category || "Journal"}</strong>
                 <span>{readLabel(article.read_time_minutes)}</span>
                 <span>{formatPublishDate(article.published_at)}</span>
+                <a className="reactive-button text-button" href="/blog/">All stories <span>↗</span></a>
               </div>
             </aside>
           </div>
