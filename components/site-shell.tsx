@@ -18,7 +18,6 @@ export function SiteHeader({current}:{current?:"home"|"blog"|"about"}) {
           <a className="brand-mark" href="/" aria-label="Miidasu home">miidasu<span>.</span></a>
           <a className="header-action reactive-button solid-button" href="#newsletter">Subscribe <span>↗</span></a>
         </div>
-
       </header>
 
       <div className="nav-rule">
@@ -26,7 +25,6 @@ export function SiteHeader({current}:{current?:"home"|"blog"|"about"}) {
           <a href="/" aria-current={current==="home" ? "page" : undefined}>Home</a>
           <a href="/blog/" aria-current={current==="blog" ? "page" : undefined}>Journal</a>
           <a href="/about/" aria-current={current==="about" ? "page" : undefined}>About</a>
-          <a href="/authors/yash/">Authors</a>
           <a href="/contact/">Contact</a>
         </nav>
       </div>
@@ -57,7 +55,11 @@ export function SiteFooter() {
 
       <div className="footer-main">
         <div className="edge-row footer-grid">
-          <a className="footer-brand" href="/">miidasu<span>.</span></a>
+          <div className="footer-brand-block">
+            <a className="footer-brand" href="/">miidasu<span>.</span></a>
+            <p>Independent ideas, explainers, and perspectives on modern work, technology, and the systems around them.</p>
+            <a className="footer-email" href="mailto:hello@miidasu.co">hello@miidasu.co</a>
+          </div>
 
           <div className="footer-col">
             <span>Explore</span>
@@ -67,24 +69,22 @@ export function SiteFooter() {
           </div>
 
           <div className="footer-col">
-            <span>People</span>
-            <a href="/authors/yash/">Yash</a>
-            <a href="/authors/ata/">Ata Shaikh</a>
-            <a href="/authors/snehil/">Snehil</a>
+            <span>Information</span>
+            <a href="/contact/">Contact</a>
+            <a href="#newsletter">Newsletter</a>
           </div>
 
           <div className="footer-col">
-            <span>More</span>
-            <a href="/contact/">Contact</a>
+            <span>Legal</span>
             <a href="/privacy/">Privacy</a>
             <a href="/terms/">Terms</a>
             <a href="/cookies/">Cookies</a>
           </div>
+        </div>
 
-          <div className="footer-note">
-            <p>A little space for a different perspective.</p>
-            <small>© 2026 Miidasu</small>
-          </div>
+        <div className="edge-row footer-bottom">
+          <span>© 2026 Miidasu. All rights reserved.</span>
+          <span>miidasu.co</span>
         </div>
       </div>
     </footer>
