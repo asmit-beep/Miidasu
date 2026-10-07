@@ -85,10 +85,10 @@ export function extractHeadings(markdown:string):TocHeading[]{
 
 export function renderMarkdown(markdown:string){
   const source=(markdown||"").replace(/^#\s+.+?\n+/,"");
-  const rendered=String(marked.parse(source,{gfm:true,breaks:false}));
+  let rendered=String(marked.parse(source,{gfm:true,breaks:false}));
   const seen=new Map<string,number>();
 
-  return rendered.replace(/<h([23])>([\s\S]*?)<\/h\1>/g,(_full,level,inner)=>{
+  rendered=rendered.replace(/<h([23])>([\s\S]*?)<\/h\1>/g,(_full,level,inner)=>{
     const text=cleanHeadingText(inner);
     const base=headingId(text);
     const count=seen.get(base)||0;
@@ -96,6 +96,16 @@ export function renderMarkdown(markdown:string){
     const id=count ? base+"-"+(count+1) : base;
     return '<h'+level+' id="'+id+'">'+inner+'</h'+level+'>';
   });
+
+  rendered=rendered.replace(/<table>([\s\S]*?)<\/table>/g,(_full,inner)=>{
+    const headMatch=inner.match(/<thead>[\s\S]*?<tr>([\s\S]*?)<\/tr>[\s\S]*?<\/thead>/);
+    const firstRow=headMatch?.[1] || inner.match(/<tr>([\s\S]*?)<\/tr>/)?.[1] || "";
+    const columns=(firstRow.match(/<(?:th|td)\b/g)||[]).length;
+    const tableClass=columns>=5 ? "table-wide" : "table-compact";
+    return '<table class="'+tableClass+'">'+inner+'</table>';
+  });
+
+  return rendered;
 }
 
 export function markdownToHtml(markdown:string){
