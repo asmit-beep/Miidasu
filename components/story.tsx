@@ -1,0 +1,4 @@
+import type { Article } from "@/lib/types";
+import { formatPublishDate, readLabel } from "@/lib/format";
+export function StoryMeta({article}:{article:Article}){return <div className="story-meta"><span>{article.category}</span><span>{readLabel(article.read_time_minutes)}</span><span>{formatPublishDate(article.published_at)}</span></div>}
+export function ArchiveRow({article,index}:{article:Article;index:number}){return <article className="archive-row"><span className="archive-number">{String(index).padStart(2,"0")}</span><div className="archive-main"><StoryMeta article={article}/><h2><a href={"/blog/"+article.slug+"/"}>{article.title}</a></h2><p>{article.excerpt}</p></div><div className="archive-end"><span>{formatPublishDate(article.published_at)}</span><a href={"/blog/"+article.slug+"/"}>Read ↗</a></div></article>}
