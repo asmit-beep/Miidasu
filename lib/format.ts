@@ -27,17 +27,19 @@ export function authorSlug(author:string){
   return "";
 }
 
-export function articleSummary(article:any,max=210){
-  const source=(article.excerpt||article.content||"")
+export function articleSummary(article:any,_max=210){
+  const excerpt=String(article.excerpt||"").trim();
+  const fallback=String(article.content||"")
+    .replace(/^#\s+.+?\n+/,"")
+    .split(/\n\s*\n/)
+    .map((part:string)=>part.trim())
+    .find((part:string)=>part && !/^(#{1,6}|[-*]\s|\d+\.\s|\|)/.test(part)) || "";
+
+  return (excerpt||fallback)
     .replace(/\r?\n+/g," ")
     .replace(/[#>*_`]/g," ")
     .replace(/\s+/g," ")
     .trim();
-  if(!source)return "";
-  if(source.length<=max)return source;
-  const cut=source.slice(0,max);
-  const last=cut.lastIndexOf(" ");
-  return cut.slice(0,last>max*.7?last:max).trim()+"…";
 }
 
 function cleanHeadingText(input:string){
