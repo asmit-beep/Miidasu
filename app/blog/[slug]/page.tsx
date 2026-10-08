@@ -96,7 +96,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
 
             {article.cover_image_url && (
               <figure className="article-hero-media">
-                <img src={article.cover_image_url} alt="" />
+                <img decoding="async" fetchPriority="high" src={article.cover_image_url} alt="" />
               </figure>
             )}
           </div>
@@ -128,7 +128,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
           <div className="section-title-row"><h2>Keep Reading</h2><a href="/blog/">Journal</a></div>
           <div className="related-grid">
             {related.map(a=><article className="related-card" key={a.id}>
-              {a.cover_image_url&&<a className="related-media" href={"/blog/"+a.slug+"/"}><img src={a.cover_image_url} alt="" /></a>}
+              {a.cover_image_url&&<a className="related-media" href={"/blog/"+a.slug+"/"}><img loading="lazy" decoding="async" src={a.cover_image_url} alt="" /></a>}
               <div className="card-meta"><span>{a.category}</span><span>{readLabel(a.read_time_minutes)}</span></div>
               <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
               <p>{articleSummary(a,150)}</p>
