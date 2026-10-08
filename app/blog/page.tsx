@@ -36,7 +36,7 @@ export default async function BlogPage() {
       {lead && <section className="full-bleed journal-lead-wrap">
         <div className="edge-row tech-blog-lead">
           <article className="blog-lead-main">
-            {lead.cover_image_url && <a className="journal-lead-media" href={"/blog/"+lead.slug+"/"}><img src={lead.cover_image_url} alt="" /></a>}
+            {lead.cover_image_url && <a className="journal-lead-media" href={"/blog/"+lead.slug+"/"}><img decoding="async" fetchPriority="high" src={lead.cover_image_url} alt="" /></a>}
             <Meta category={lead.category} minutes={lead.read_time_minutes} date={lead.published_at}/>
             <h2><a href={"/blog/"+lead.slug+"/"}>{lead.title}</a></h2>
             <p>{articleSummary(lead,230)}</p>
@@ -63,7 +63,7 @@ export default async function BlogPage() {
           <div className="tech-feed">
             {feed.map((a,i)=><article className="tech-feed-row" key={a.id}>
               <span className="feed-index">{String(i+1).padStart(2,"0")}</span>
-              {a.cover_image_url && <a className="feed-media" href={"/blog/"+a.slug+"/"}><img src={a.cover_image_url} alt="" /></a>}
+              {a.cover_image_url && <a className="feed-media" href={"/blog/"+a.slug+"/"}><img loading="lazy" decoding="async" src={a.cover_image_url} alt="" /></a>}
               <div className="feed-copy">
                 <Meta category={a.category} minutes={a.read_time_minutes} date={a.published_at}/>
                 <h2><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h2>
