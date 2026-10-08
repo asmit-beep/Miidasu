@@ -104,7 +104,23 @@ export function renderMarkdown(markdown:string){
     const firstRow=headMatch?.[1] || inner.match(/<tr>([\s\S]*?)<\/tr>/)?.[1] || "";
     const columns=(firstRow.match(/<(?:th|td)\b/g)||[]).length;
     const tableClass=columns>=5 ? "table-wide" : "table-compact";
-    return '<table class="'+tableClass+'">'+inner+'</table>';
+    // Add mobile-only visual labels while preserving the actual table and its content.
+    const labels=Array.from(firstRow.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi),m=>
+      cleanHeadingText(m[1]).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")
+    );
+    const labeled=inner.replace(/<tbody>([\s\S]*?)<\/tbody>/gi,(_tbody,rows:string)=>{
+      const decorated=rows.replace(/<tr>([\s\S]*?)<\/tr>/gi,(_row,cells:string)=>{
+        let index=0;
+        const tagged=cells.replace(/<td\b([^>]*)>/gi,(_tag,attrs:string)=>{
+          const label=labels[index]||"Column "+(index+1);
+          index++;
+          return '<td'+attrs+' data-label="'+label+'">';
+        });
+        return '<tr>'+tagged+'</tr>';
+      });
+      return '<tbody>'+decorated+'</tbody>';
+    });
+    return '<table class="'+tableClass+'">'+labeled+'</table>';
   });
 
   return rendered;
