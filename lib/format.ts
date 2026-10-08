@@ -105,9 +105,11 @@ export function renderMarkdown(markdown:string){
     const columns=(firstRow.match(/<(?:th|td)\b/g)||[]).length;
     const tableClass=columns>=5 ? "table-wide" : "table-compact";
     // Add mobile-only visual labels while preserving the actual table and its content.
-    const labels=Array.from(firstRow.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi),m=>
-      cleanHeadingText(m[1]).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")
-    );
+    const labels:string[]=[];
+    firstRow.replace(/<th\b[^>]*>([\s\S]*?)<\/th>/gi,(_tag,heading:string)=>{
+      labels.push(cleanHeadingText(heading).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"));
+      return "";
+    });
     const labeled=inner.replace(/<tbody>([\s\S]*?)<\/tbody>/gi,(_tbody,rows:string)=>{
       const decorated=rows.replace(/<tr>([\s\S]*?)<\/tr>/gi,(_row,cells:string)=>{
         let index=0;
