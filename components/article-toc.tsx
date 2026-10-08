@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { TocHeading } from "@/lib/format";
 
 export function ArticleToc({headings}:{headings:TocHeading[]}) {
   const ids=useMemo(()=>headings.map(h=>h.id),[headings]);
   const [active,setActive]=useState(ids[0]||"");
   const linksRef=useRef<HTMLDivElement>(null);
+  const tocId=useId();
+  const [open,setOpen]=useState(false);
 
   useEffect(()=>{
     if(!ids.length)return;
@@ -42,6 +44,7 @@ export function ArticleToc({headings}:{headings:TocHeading[]}) {
   useEffect(()=>{
     const container=linksRef.current;
     if(!container||!active)return;
+    if(window.matchMedia("(max-width: 760px)").matches && !open)return;
 
     const link=container.querySelector<HTMLAnchorElement>('a[data-toc-id="'+active+'"]');
     if(!link)return;
@@ -51,24 +54,35 @@ export function ArticleToc({headings}:{headings:TocHeading[]}) {
       top:Math.max(0,target),
       behavior:"smooth"
     });
-  },[active]);
+  },[active,open]);
 
   if(!headings.length)return null;
 
   return (
-    <nav className="article-toc" aria-label="Table of contents">
+    <nav className={"article-toc"+(open?" is-open":"")} aria-label="Table of contents">
       <div className="toc-head">
         <span>On this page</span>
         <span>{headings.length}</span>
       </div>
-      <div className="toc-links" ref={linksRef}>
+      <button
+        type="button"
+        className="toc-mobile-toggle"
+        aria-expanded={open}
+        aria-controls={tocId}
+        onClick={()=>setOpen(v=>!v)}
+      >
+        <span>On this page</span>
+        <strong>{headings.length} sections</strong>
+        <span className="toc-chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div className="toc-links" id={tocId} ref={linksRef}>
         {headings.map(item=>(
           <a
             key={item.id}
             data-toc-id={item.id}
             className={(item.level===3?"toc-link toc-link-sub":"toc-link")+(active===item.id?" is-active":"")}
             href={"#"+item.id}
-            onClick={()=>setActive(item.id)}
+            onClick={()=>{setActive(item.id);setOpen(false);}}
           >
             <span>{item.text}</span>
           </a>
