@@ -17,7 +17,7 @@ async function request(path:string,init:RequestInit={},requiresWrite=false){
     ...init,
     headers:{
       "apikey":key,
-      "Authorization":"Bearer "+key,
+      ...(key.startsWith("sb_")?{}:{"Authorization":"Bearer "+key}),
       "Content-Type":"application/json",
       Accept:"application/json",
       ...(init.headers||{})
@@ -60,6 +60,7 @@ export async function saveAdminArticle(value:unknown):Promise<Article>{
       {method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify(payload)},true);
     return rows?.[0];
   }
+  if(payload.status==="published"&&!input.published_at)payload.published_at=new Date().toISOString();
   const rows=await request("/rest/v1/articles?id=eq."+id+"&select=*",
     {method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify(payload)},true);
   if(!rows?.[0])throw new Error("Article could not be saved");
