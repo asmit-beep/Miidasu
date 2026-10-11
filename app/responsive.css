@@ -53,8 +53,7 @@ main h1, main h2, main h3, main p, .footer-main p {
   .tech-feed-row { grid-template-columns: 28px 160px minmax(0, 1fr) 36px; gap: 14px; }
   .feed-media { width: 160px; }
   .feed-copy h2 { font-size: 21px; }
-  /* Keep article titles, summaries and metadata beside their existing covers on tablets. */
-  .article-hero-grid:not(.no-cover) { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); align-items: center; }
+  .article-hero-grid { grid-template-columns: minmax(0, 1fr); }
   .article-hero-copy { max-width: 100%; }
   .article-hero-copy h1 { max-width: 780px; }
   .article-hero-media { max-width: 800px; }
