@@ -2,22 +2,24 @@ import type { Article } from "./types";
 
 function credentials(){
   const url=(process.env.NEXT_PUBLIC_SUPABASE_URL||"").replace(/\/$/,"");
-  const privileged=process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SECRET_KEY||"";
   const anon=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||"";
-  return {url,key:privileged||anon,privileged:!!privileged};
+  const adminSecret=process.env.ADMIN_API_SECRET||"";
+  return {url,key:anon,adminSecret};
 }
 export function publishingEnabled(){
-  return Boolean(credentials().url&&credentials().privileged);
+  const {url,key,adminSecret}=credentials();
+  return Boolean(url&&key&&adminSecret);
 }
 async function request(path:string,init:RequestInit={},requiresWrite=false){
-  const {url,key,privileged}=credentials();
+  const {url,key,adminSecret}=credentials();
   if(!url||!key)throw new Error("Database connection is missing.");
-  if(requiresWrite&&!privileged)throw new Error("Publishing connection is unavailable. Connect Supabase securely before saving.");
+  if(requiresWrite&&!adminSecret)throw new Error("Publishing connection is unavailable. Connect the admin write secret before saving.");
   const response=await fetch(url+path,{
     ...init,
     headers:{
       "apikey":key,
-      ...(key.startsWith("sb_")?{}:{"Authorization":"Bearer "+key}),
+      ...(key.startsWith("eyJ")?{"Authorization":"Bearer "+key}:{}),
+      ...(adminSecret?{"x-admin-secret":adminSecret}:{}),
       "Content-Type":"application/json",
       Accept:"application/json",
       ...(init.headers||{})
