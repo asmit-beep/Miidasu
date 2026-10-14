@@ -21,6 +21,7 @@ export function AdminWorkspace({initial,canPublish}:{initial:AdminItem[];canPubl
   const [notice,setNotice]=useState("");
   const [importUrl,setImportUrl]=useState("");
   const [importing,setImporting]=useState(false);
+  const [uploadingImage,setUploadingImage]=useState(false);
   const [tab,setTab]=useState<"edit"|"preview">("edit");
   const [dirty,setDirty]=useState(false);
 
@@ -67,6 +68,22 @@ export function AdminWorkspace({initial,canPublish}:{initial:AdminItem[];canPubl
       setTab("edit");setNotice("Google Doc imported into the editor. Review formatting before saving.");
     }catch(e){setNotice(e instanceof Error?e.message:"Unable to import Google Doc");}
     finally{setImporting(false);}
+  }
+  async function uploadCover(file:File|null){
+    if(!file)return;
+    setUploadingImage(true);setNotice("");
+    try{
+      const form=new FormData();
+      form.set("file",file);
+      const res=await fetch("/admin/api/upload",{
+        method:"POST",body:form,credentials:"same-origin"
+      });
+      const data=await res.json();
+      if(!res.ok)throw new Error(data.error||"Image upload failed");
+      update("cover_image_url",data.url as AdminItem["cover_image_url"]);
+      setNotice("Featured image uploaded. Save the article to keep this image.");
+    }catch(e){setNotice(e instanceof Error?e.message:"Unable to upload image");}
+    finally{setUploadingImage(false);}
   }
   const filtered=items.filter(a=>(a.title+" "+a.slug+" "+a.author).toLowerCase().includes(query.toLowerCase()));
   return (
@@ -133,10 +150,33 @@ export function AdminWorkspace({initial,canPublish}:{initial:AdminItem[];canPubl
               <button type="button" onClick={importDoc} disabled={importing}>{importing?"Importing…":"Import Doc"}</button>
             </div>
             {tab==="edit"?<textarea className="admin-markdown" value={article.content||""} onChange={e=>update("content",e.target.value)} rows={19} spellCheck={false} placeholder="# Your article\n\nWrite in Markdown…" />:<pre className="admin-text-preview">{article.content||"No article content yet."}</pre>}
-            <div className="admin-form-grid">
-              <label className="admin-field">Cover image URL
-                <input type="url" value={article.cover_image_url||""} onChange={e=>update("cover_image_url",e.target.value)}/>
+            <div className="admin-cover-section">
+              <div className="admin-cover-head">
+                <div>
+                  <strong>Featured image</strong>
+                  <span>Upload JPG, PNG or WebP · max 5 MB</span>
+                </div>
+                <label className={"admin-upload-button"+(uploadingImage?" is-loading":"")}>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={uploadingImage}
+                    onChange={e=>{const file=e.target.files?.[0]||null;void uploadCover(file);e.currentTarget.value="";}}
+                  />
+                  {uploadingImage?"Uploading…":"Upload from computer"}
+                </label>
+              </div>
+              {article.cover_image_url
+                ? <div className="admin-cover-preview">
+                    <img src={article.cover_image_url} alt="Featured image preview"/>
+                    <button type="button" onClick={()=>update("cover_image_url","")}>Remove</button>
+                  </div>
+                : <div className="admin-cover-empty">No featured image selected yet.</div>}
+              <label className="admin-field admin-cover-url">Image URL <span>(optional fallback)</span>
+                <input type="url" value={article.cover_image_url||""} onChange={e=>update("cover_image_url",e.target.value)} placeholder="https://…"/>
               </label>
+            </div>
+            <div className="admin-form-grid">
               <label className="admin-field">Estimated read time (minutes)
                 <input type="number" min={1} max={998} value={article.read_time_minutes||""} onChange={e=>update("read_time_minutes",(Number(e.target.value)||null) as AdminItem["read_time_minutes"])}/>
               </label>
