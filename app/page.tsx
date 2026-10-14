@@ -20,6 +20,16 @@ function ArticleLink({href,label}:{href:string;label:string}) {
   return <a className="reactive-button text-button" href={href}>{label}<span>↗</span></a>;
 }
 
+function homepageCover(value:string|null|undefined){
+  const fallback="/og-default.png";
+  if(!value)return fallback;
+  try{
+    const u=new URL(value,"https://miidasu.co");
+    if(u.hostname==="chatgpt.com" && u.pathname.startsWith("/s/"))return fallback;
+    return value;
+  }catch{return fallback;}
+}
+
 export default async function HomePage() {
   let articles = await listPublishedArticles().catch(() => []);
   const featured = await getHomepageFeature().catch(() => null) ?? articles[0] ?? null;
@@ -51,7 +61,7 @@ export default async function HomePage() {
           <div className="section-title-row"><h2>Top Stories</h2><span>What to read first</span></div>
           <div className="tech-lead-grid">
             {featured && <article className="tech-feature">
-              {featured.cover_image_url && <a className="hero-media" href={"/blog/"+featured.slug+"/"}><img decoding="async" fetchPriority="high" src={featured.cover_image_url} alt="" /></a>}
+              <a className="hero-media" href={"/blog/"+featured.slug+"/"}><img decoding="async" fetchPriority="high" src={homepageCover(featured.cover_image_url)} alt={featured.title} /></a>
               <Meta category={featured.category} minutes={featured.read_time_minutes} date={featured.published_at}/>
               <h2><a href={"/blog/"+featured.slug+"/"}>{featured.title}</a></h2>
               <p>{articleSummary(featured,220)}</p>
