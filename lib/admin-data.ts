@@ -50,12 +50,27 @@ export async function saveAdminArticle(value:unknown):Promise<Article>{
   for(const field of ["excerpt","content","meta_title","meta_description","category","author","cover_image_url"]){
     payload[field]=String(payload[field]??"");
   }
+  const cover=String(payload.cover_image_url||"").trim();
+  if(cover){
+    let parsed:URL;
+    try{parsed=new URL(cover);}
+    catch{throw new Error("Featured image must be a valid image URL or uploaded file.");}
+    if(parsed.hostname==="chatgpt.com" && parsed.pathname.startsWith("/s/")){
+      throw new Error("A ChatGPT share link is not an image. Upload the image from your computer instead.");
+    }
+  }
+  payload.cover_image_url=cover;
   payload.title=title;payload.slug=slug;
   payload.featured_on_homepage=Boolean(payload.featured_on_homepage);
   const minutes=Number(payload.read_time_minutes);
   payload.read_time_minutes=Number.isFinite(minutes)&&minutes>0&&minutes<999?Math.round(minutes):null;
   payload.updated_at=new Date().toISOString();
   const id=Number(input.id);
+  if(payload.featured_on_homepage===true && payload.status==="published"){
+    const exclude=Number.isInteger(id)&&id>0?"&id=neq."+id:"";
+    await request("/rest/v1/articles?featured_on_homepage=eq.true"+exclude,
+      {method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({featured_on_homepage:false})},true);
+  }
   if(!Number.isInteger(id)||id<=0){
     if(payload.status==="published")payload.published_at=new Date().toISOString();
     const rows=await request("/rest/v1/articles?select=*",
