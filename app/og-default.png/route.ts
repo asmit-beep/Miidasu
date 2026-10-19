@@ -1,2 +1,12 @@
-import { NextResponse } from "next/server";
-export function GET(req:Request){return NextResponse.redirect(new URL("/opengraph-image",req.url),307)}
+import Image from "../opengraph-image";
+
+// Share the working image layout and finish rendering before returning a 200.
+export async function GET() {
+  const png = await Image().arrayBuffer();
+  return new Response(png, {
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=3600, s-maxage=86400",
+    },
+  });
+}
