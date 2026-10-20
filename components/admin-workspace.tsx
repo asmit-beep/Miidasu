@@ -12,6 +12,34 @@ function emptyArticle():Partial<AdminItem>{
   };
 }
 function slugify(s:string){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,180);}
+
+// Use the browser's decoder, not just HTTP status or the file extension.
+// This also catches a 200 response containing an empty or corrupt image.
+async function validateCoverImage(src:string):Promise<void>{
+  if(!src.trim())return;
+  await new Promise<void>((resolve,reject)=>{
+    const image=new Image();
+    let settled=false;
+    const finish=(error?:Error)=>{
+      if(settled)return;
+      settled=true;
+      window.clearTimeout(timer);
+      image.onload=null;image.onerror=null;
+      if(error)reject(error);else resolve();
+    };
+    const timer=window.setTimeout(()=>finish(new Error("The featured image took too long to load. Try again or upload it from your computer.")),12000);
+    image.onerror=()=>finish(new Error("The featured image is empty, broken, or not a valid image. Upload a working image before saving."));
+    image.onload=()=>{
+      if(!image.naturalWidth||!image.naturalHeight){
+        finish(new Error("The featured image has no visible content. Choose another image."));
+        return;
+      }
+      image.decode().then(()=>finish(),()=>finish(new Error("The featured image could not be decoded. Upload a JPG, PNG, or WebP image.")));
+    };
+    image.src=src;
+  });
+}
+
 export function AdminWorkspace({initial,canPublish}:{initial:AdminItem[];canPublish:boolean}){
   const [items,setItems]=useState(initial);
   const [selected,setSelected]=useState<number|"new">("new");
@@ -38,9 +66,11 @@ export function AdminWorkspace({initial,canPublish}:{initial:AdminItem[];canPubl
   }
   async function save(e:React.FormEvent){
     e.preventDefault();
+    if(saving||uploadingImage){setNotice("Wait for the image upload or current save to finish.");return;}
     if(!canPublish){setNotice("Publishing is not connected. Your changes remain in this browser only. Contact the site administrator to reconnect Supabase.");return;}
     setSaving(true);setNotice("");
     try{
+      await validateCoverImage(String(article.cover_image_url||"").trim());
       const res=await fetch("/admin/api/articles",{
         method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",
         body:JSON.stringify(article)
@@ -70,9 +100,11 @@ export function AdminWorkspace({initial,canPublish}:{initial:AdminItem[];canPubl
     finally{setImporting(false);}
   }
   async function uploadCover(file:File|null){
-    if(!file)return;
+    if(!file||saving||uploadingImage)return;
     setUploadingImage(true);setNotice("");
     try{
+      const localUrl=URL.createObjectURL(file);
+      try{await validateCoverImage(localUrl);}finally{URL.revokeObjectURL(localUrl);}
       const form=new FormData();
       form.set("file",file);
       const res=await fetch("/admin/api/upload",{
@@ -80,6 +112,7 @@ export function AdminWorkspace({initial,canPublish}:{initial:AdminItem[];canPubl
       });
       const data=await res.json();
       if(!res.ok)throw new Error(data.error||"Image upload failed");
+      await validateCoverImage(String(data.url));
       update("cover_image_url",data.url as AdminItem["cover_image_url"]);
       setNotice("Featured image uploaded. Save the article to keep this image.");
     }catch(e){setNotice(e instanceof Error?e.message:"Unable to upload image");}
@@ -113,7 +146,7 @@ export function AdminWorkspace({initial,canPublish}:{initial:AdminItem[];canPubl
               <div><p className="admin-eyebrow">CONTENT MANAGEMENT</p><h1>{selected==="new"?"New article":"Edit article"}</h1></div>
               <div className="admin-editor-actions">
                 <a href={article.slug?"/blog/"+article.slug+"/":"/blog/"} target="_blank" rel="noopener noreferrer">Live view ↗</a>
-                <button disabled={saving||!canPublish} type="submit">{saving?"Saving…":article.status==="published"?"Save changes":"Save draft"}</button>
+                <button disabled={saving||uploadingImage||!canPublish} type="submit">{saving?"Saving…":article.status==="published"?"Save changes":"Save draft"}</button>
               </div>
             </div>
             {!canPublish&&<p className="admin-warning">The earlier publishing backend was removed with an expired Vercel deployment. This editor is protected and can read the article library, but saves are disabled until the privileged Supabase connection is restored. Existing published content is safe.</p>}
@@ -160,7 +193,7 @@ export function AdminWorkspace({initial,canPublish}:{initial:AdminItem[];canPubl
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
-                    disabled={uploadingImage}
+                    disabled={uploadingImage||saving}
                     onChange={e=>{const file=e.target.files?.[0]||null;void uploadCover(file);e.currentTarget.value="";}}
                   />
                   {uploadingImage?"Uploading…":"Upload from computer"}
@@ -190,7 +223,7 @@ export function AdminWorkspace({initial,canPublish}:{initial:AdminItem[];canPubl
               <textarea value={article.meta_description||""} onChange={e=>update("meta_description",e.target.value)} rows={3}/>
             </label>
             <div className="admin-editor-actions admin-bottom-actions">
-              <button type="submit" disabled={saving||!canPublish}>{saving?"Saving…":"Save article"}</button>
+              <button type="submit" disabled={saving||uploadingImage||!canPublish}>{saving?"Saving…":"Save article"}</button>
             </div>
           </form>
         </main>
