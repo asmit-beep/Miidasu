@@ -1,6 +1,7 @@
+import { CoverImage } from "@/components/cover-image";
 import type { Metadata } from "next";
 import { PageFrame } from "@/components/site-shell";
-import { getHomepageFeature, listPublishedArticles } from "@/lib/data";
+import { listPublishedArticles } from "@/lib/data";
 import { AUTHORS } from "@/lib/types";
 import { articleSummary, formatPublishDate, readLabel } from "@/lib/format";
 
@@ -32,7 +33,7 @@ function homepageCover(value:string|null|undefined){
 
 export default async function HomePage() {
   let articles = await listPublishedArticles().catch(() => []);
-  const featured = await getHomepageFeature().catch(() => null) ?? articles[0] ?? null;
+  const featured = articles.find(a => a.featured_on_homepage) ?? articles[0] ?? null;
   if (featured) articles = articles.filter(a => a.id !== featured.id);
 
   const top = articles.slice(0,4);
@@ -61,7 +62,7 @@ export default async function HomePage() {
           <div className="section-title-row"><h2>Top Stories</h2><span>What to read first</span></div>
           <div className="tech-lead-grid">
             {featured && <article className="tech-feature">
-              <a className="hero-media" href={"/blog/"+featured.slug+"/"}><img decoding="async" fetchPriority="high" src={homepageCover(featured.cover_image_url)} alt={featured.title} /></a>
+              <a className="hero-media" href={"/blog/"+featured.slug+"/"}><CoverImage src={homepageCover(featured.cover_image_url)} alt={featured.title} placement="hero" priority /></a>
               <Meta category={featured.category} minutes={featured.read_time_minutes} date={featured.published_at}/>
               <h2><a href={"/blog/"+featured.slug+"/"}>{featured.title}</a></h2>
               <p>{articleSummary(featured,220)}</p>
@@ -72,7 +73,7 @@ export default async function HomePage() {
               <div className="panel-title">More Top Stories</div>
               {top.map((a,i) => <article className="tech-stack-card tech-stack-row" key={a.id}>
                 <span className="stack-index">{String(i+1).padStart(2,"0")}</span>
-                {a.cover_image_url && <a className="stack-media" href={"/blog/"+a.slug+"/"}><img loading="lazy" decoding="async" src={a.cover_image_url} alt="" /></a>}
+                {a.cover_image_url && <a className="stack-media" href={"/blog/"+a.slug+"/"}><CoverImage src={a.cover_image_url} alt={a.title} placement="stack" /></a>}
                 <div className="stack-copy">
                   <Meta category={a.category} minutes={a.read_time_minutes}/>
                   <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
@@ -89,7 +90,7 @@ export default async function HomePage() {
           <div className="section-title-row"><h2>Latest</h2><a href="/blog/">View all</a></div>
           <div className="latest-grid">
             {latest.map(a => <article className="latest-card" key={a.id}>
-              {a.cover_image_url && <a className="latest-media" href={"/blog/"+a.slug+"/"}><img loading="lazy" decoding="async" src={a.cover_image_url} alt="" /></a>}
+              {a.cover_image_url && <a className="latest-media" href={"/blog/"+a.slug+"/"}><CoverImage src={a.cover_image_url} alt={a.title} placement="grid" /></a>}
               <Meta category={a.category} minutes={a.read_time_minutes}/>
               <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
               <p>{articleSummary(a,165)}</p>
@@ -138,7 +139,7 @@ export default async function HomePage() {
                 <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
                 <p>{articleSummary(a,150)}</p>
               </div>
-              {a.cover_image_url && <a className="stream-media" href={"/blog/"+a.slug+"/"}><img loading="lazy" decoding="async" src={a.cover_image_url} alt="" /></a>}
+              {a.cover_image_url && <a className="stream-media" href={"/blog/"+a.slug+"/"}><CoverImage src={a.cover_image_url} alt={a.title} placement="stream" /></a>}
             </article>)}
           </div>
         </div>

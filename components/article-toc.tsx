@@ -13,14 +13,17 @@ export function ArticleToc({headings}:{headings:TocHeading[]}) {
   useEffect(()=>{
     if(!ids.length)return;
 
+    const elements=ids.map(id=>document.getElementById(id));
+    let frame=0;
+
     const updateActive=()=>{
       let current=ids[0]||"";
       const threshold=Math.max(120,window.innerHeight*.22);
 
-      for(const id of ids){
-        const el=document.getElementById(id);
+      for(let index=0;index<ids.length;index++){
+        const el=elements[index];
         if(!el)continue;
-        if(el.getBoundingClientRect().top<=threshold)current=id;
+        if(el.getBoundingClientRect().top<=threshold)current=ids[index];
         else break;
       }
 
@@ -31,13 +34,19 @@ export function ArticleToc({headings}:{headings:TocHeading[]}) {
       setActive(current);
     };
 
+    const scheduleUpdate=()=>{
+      if(frame)return;
+      frame=window.requestAnimationFrame(()=>{frame=0;updateActive();});
+    };
+
     updateActive();
-    window.addEventListener("scroll",updateActive,{passive:true});
-    window.addEventListener("resize",updateActive);
+    window.addEventListener("scroll",scheduleUpdate,{passive:true});
+    window.addEventListener("resize",scheduleUpdate);
 
     return ()=>{
-      window.removeEventListener("scroll",updateActive);
-      window.removeEventListener("resize",updateActive);
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll",scheduleUpdate);
+      window.removeEventListener("resize",scheduleUpdate);
     };
   },[ids]);
 
@@ -52,7 +61,7 @@ export function ArticleToc({headings}:{headings:TocHeading[]}) {
     const target=link.offsetTop-(container.clientHeight/2)+(link.offsetHeight/2);
     container.scrollTo({
       top:Math.max(0,target),
-      behavior:"smooth"
+      behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"
     });
   },[active,open]);
 
