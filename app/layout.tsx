@@ -14,6 +14,15 @@ export const metadata:Metadata={
   metadataBase:new URL(siteUrl),
   title:{default:"Miidasu",template:"%s | Miidasu"},
   description:"Thoughts on work, life, and the interesting things in between. Explore the Miidasu journal.",
+  icons:{
+    icon:[
+      {url:"/favicon-96.png",type:"image/png",sizes:"96x96"},
+      {url:"/icon-192.png",type:"image/png",sizes:"192x192"},
+      {url:"/favicon.ico",sizes:"16x16 32x32 48x48",type:"image/x-icon"}
+    ],
+    shortcut:"/favicon.ico",
+    apple:{url:"/apple-touch-icon.png",sizes:"180x180",type:"image/png"}
+  },
   openGraph:{siteName:"Miidasu",type:"website",images:["/og-default.png"]},
   twitter:{card:"summary_large_image",images:["/og-default.png"]},
   verification:{google:"4UXGsj5-dTr_Scg-u6qVs-niWmMANxLqcZRtKbtW62I"}
