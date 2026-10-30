@@ -131,3 +131,44 @@ export function renderMarkdown(markdown:string){
 export function markdownToHtml(markdown:string){
   return renderMarkdown(markdown);
 }
+
+export type FaqItem={question:string;answer:string};
+
+function markdownToPlainText(md:string){
+  const html=marked.parse(md,{async:false}) as string;
+  return html
+    .replace(/<[^>]+>/g," ")
+    .replace(/&quot;/g,'"')
+    .replace(/&#39;/g,"'")
+    .replace(/&lt;/g,"<")
+    .replace(/&gt;/g,">")
+    .replace(/&nbsp;/g," ")
+    .replace(/&amp;/g,"&")
+    .replace(/\s+/g," ")
+    .replace(/\s+([.,;:!?)])/g,"$1")
+    .trim();
+}
+
+// Builds FAQ pairs from the body's own FAQ section (an H2 containing "FAQ" or "Frequently asked").
+// Questions are H3+ sub-headings or paragraphs that open with a bold question.
+export function extractFaq(markdown:string):FaqItem[]{
+  const lines=(markdown||"").replace(/\r/g,"").split("\n");
+  const start=lines.findIndex(l=>/^##\s+/.test(l)&&/\bfaqs?\b|frequently asked/i.test(l));
+  if(start<0)return [];
+  let end=lines.length;
+  for(let i=start+1;i<lines.length;i++){if(/^#{1,2}\s+/.test(lines[i])){end=i;break;}}
+  const tokens=marked.lexer(lines.slice(start+1,end).join("\n"));
+  const items:{question:string;parts:string[]}[]=[];
+  for(const t of tokens as any[]){
+    if(t.type==="heading"&&t.depth>=3){items.push({question:markdownToPlainText(t.text),parts:[]});continue;}
+    if(t.type==="paragraph"){
+      const m=String(t.raw).trim().match(/^(\*\*|__)(.+?\?)\1\s*([\s\S]*)$/);
+      if(m){items.push({question:markdownToPlainText(m[2]),parts:m[3]?[m[3]]:[]});continue;}
+    }
+    if(t.type==="space"||t.type==="hr")continue;
+    if(items.length)items[items.length-1].parts.push(t.raw);
+  }
+  return items
+    .map(i=>({question:i.question,answer:markdownToPlainText(i.parts.join("\n\n"))}))
+    .filter(i=>i.question&&i.answer);
+}

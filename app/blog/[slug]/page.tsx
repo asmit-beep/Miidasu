@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { PageFrame } from "@/components/site-shell";
 import { ArticleToc } from "@/components/article-toc";
 import { getArticleBySlug, listPublishedArticles } from "@/lib/data";
-import { articleSummary, authorSlug, extractHeadings, formatPublishDate, renderMarkdown, readLabel } from "@/lib/format";
+import { articleSummary, authorSlug, extractHeadings, formatPublishDate, renderMarkdown, readLabel, extractFaq } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +20,12 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
       title:article.meta_title||article.title,
       description:article.meta_description||article.excerpt,
       type:"article",
+      url:"https://miidasu.co/blog/"+article.slug+"/",
       images:article.cover_image_url?[article.cover_image_url]:undefined
+    },
+    twitter:{
+      card:"summary_large_image",
+      images:[article.cover_image_url||"/og-default.png"]
     }
   };
 }
@@ -66,6 +71,13 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
     "articleSection":article.category||"Journal"
   };
 
+  const faq=extractFaq(article.content||"");
+  const faqSchema=faq.length?{
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":faq.map(q=>({"@type":"Question","name":q.question,"acceptedAnswer":{"@type":"Answer","text":q.answer}}))
+  }:null;
+
   const breadcrumbSchema={
     "@context":"https://schema.org",
     "@type":"BreadcrumbList",
@@ -80,6 +92,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
     <PageFrame current="blog">
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(articleSchema)}} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(breadcrumbSchema)}} />
+      {faqSchema&&<script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(faqSchema)}} />}
       <article className="article-page">
         <header className="full-bleed article-head-wrap">
           <div className={"edge-row article-hero-grid"+(!article.cover_image_url?" no-cover":"")}>
@@ -97,7 +110,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
 
             {article.cover_image_url && (
               <figure className="article-hero-media">
-                <CoverImage src={article.cover_image_url} alt="" placement="article" priority />
+                <CoverImage src={article.cover_image_url} alt={article.title+" cover"} placement="article" priority />
               </figure>
             )}
           </div>
