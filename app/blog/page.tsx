@@ -17,7 +17,7 @@ function Meta({category,minutes,date}:{category:string;minutes:number|null;date?
 }
 
 export default async function BlogPage() {
-  const articles = await listPublishedArticles().catch(() => []);
+  const articles = await listPublishedArticles();
   const lead = articles[0];
   const side = articles.slice(1,4);
   const feed = articles.slice(4);
