@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { readSession, validOrigin } from "@/lib/admin-auth";
 import { listAdminArticles, publishingEnabled, saveAdminArticle } from "@/lib/admin-data";
 export const runtime="nodejs";
@@ -23,6 +24,7 @@ export async function POST(req:Request){
   try{
     const data=await req.json();
     const article=await saveAdminArticle(data);
+    revalidateTag("miidasu-public-articles");
     return NextResponse.json({article},{headers:{"Cache-Control":"no-store"}});
   }catch(e){
     return NextResponse.json({error:e instanceof Error?e.message:"Save failed"},{status:422});
