@@ -32,7 +32,7 @@ function homepageCover(value:string|null|undefined){
 }
 
 export default async function HomePage() {
-  let articles = await listPublishedArticles().catch(() => []);
+  let articles = await listPublishedArticles();
   const featured = articles.find(a => a.featured_on_homepage) ?? articles[0] ?? null;
   if (featured) articles = articles.filter(a => a.id !== featured.id);
 
