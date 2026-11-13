@@ -53,6 +53,17 @@ const siteSchema={
 export default function RootLayout({children}:Readonly<{children:React.ReactNode}>){
   return (
     <html lang="en">
+      <head>
+        {/* Shared Google Tag Manager installation. All routes use this layout. */}
+        <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-PF9QQ4TM"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());`
+          }}
+        />
+      </head>
       <body>
         <script
           type="application/ld+json"
