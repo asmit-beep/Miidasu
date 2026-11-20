@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { PageFrame } from "@/components/site-shell";
 import { listPublishedArticles } from "@/lib/data";
 import { AUTHORS } from "@/lib/types";
-import { articleSummary, formatPublishDate, readLabel } from "@/lib/format";
+import { articleSummary, authorSlug, formatPublishDate, readLabel } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +13,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://miidasu.co/" }
 };
 
-function Meta({category,minutes,date}:{category:string;minutes:number|null;date?:string|null}) {
-  return <div className="card-meta"><span>{category || "Journal"}</span><span>{readLabel(minutes)}</span>{date&&<span>{formatPublishDate(date)}</span>}</div>;
+function Meta({category,minutes,date,author}:{category:string;minutes:number|null;date?:string|null;author?:string}) {
+  const contributor = AUTHORS.find(item => item.key === authorSlug(author || ""));
+  return <div className="card-meta">
+    <span>{category || "Journal"}</span><span>{readLabel(minutes)}</span>
+    {date&&<span>{formatPublishDate(date)}</span>}
+    {contributor&&<span>By <a href={"/authors/"+contributor.key+"/"}>{contributor.name}</a></span>}
+  </div>;
 }
 
 function ArticleLink({href,label}:{href:string;label:string}) {
@@ -66,7 +71,7 @@ export default async function HomePage() {
           <div className="tech-lead-grid">
             {featured && <article className="tech-feature">
               <a className="hero-media" href={"/blog/"+featured.slug+"/"}><CoverImage src={homepageCover(featured.cover_image_url)} alt={featured.title} placement="hero" priority /></a>
-              <Meta category={featured.category} minutes={featured.read_time_minutes} date={featured.published_at}/>
+              <Meta category={featured.category} minutes={featured.read_time_minutes} date={featured.published_at} author={featured.author}/>
               <h2><a href={"/blog/"+featured.slug+"/"}>{featured.title}</a></h2>
               <p>{articleSummary(featured,220)}</p>
               <ArticleLink href={"/blog/"+featured.slug+"/"} label="Read the story"/>
@@ -78,7 +83,7 @@ export default async function HomePage() {
                 <span className="stack-index">{String(i+1).padStart(2,"0")}</span>
                 {a.cover_image_url && <a className="stack-media" href={"/blog/"+a.slug+"/"}><CoverImage src={a.cover_image_url} alt={a.title} placement="stack" /></a>}
                 <div className="stack-copy">
-                  <Meta category={a.category} minutes={a.read_time_minutes}/>
+                  <Meta category={a.category} minutes={a.read_time_minutes} author={a.author}/>
                   <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
                   <p>{articleSummary(a,125)}</p>
                 </div>
@@ -94,7 +99,7 @@ export default async function HomePage() {
           <div className="latest-grid">
             {latest.map(a => <article className="latest-card" key={a.id}>
               {a.cover_image_url && <a className="latest-media" href={"/blog/"+a.slug+"/"}><CoverImage src={a.cover_image_url} alt={a.title} placement="grid" /></a>}
-              <Meta category={a.category} minutes={a.read_time_minutes}/>
+              <Meta category={a.category} minutes={a.read_time_minutes} author={a.author}/>
               <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
               <p>{articleSummary(a,165)}</p>
             </article>)}
@@ -108,7 +113,7 @@ export default async function HomePage() {
           <div className="quick-grid">
             {quick.map((a,i)=><article className="quick-card" key={a.id}>
               <div className="quick-index">{String(i+1).padStart(2,"0")}</div>
-              <Meta category={a.category} minutes={a.read_time_minutes}/>
+              <Meta category={a.category} minutes={a.read_time_minutes} author={a.author}/>
               <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
               <p>{articleSummary(a,125)}</p>
               <ArticleLink href={"/blog/"+a.slug+"/"} label="Open"/>
@@ -122,7 +127,7 @@ export default async function HomePage() {
           <div className="section-title-row light-row"><h2>Deep Reads</h2><span>Longer analysis</span></div>
           <div className="deep-grid">
             {deep.map((a,i)=><article className="deep-card" key={a.id}>
-              <div className="deep-card-top"><span>{String(i+1).padStart(2,"0")}</span><Meta category={a.category} minutes={a.read_time_minutes}/></div>
+              <div className="deep-card-top"><span>{String(i+1).padStart(2,"0")}</span><Meta category={a.category} minutes={a.read_time_minutes} author={a.author}/></div>
               <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
               <p>{articleSummary(a,180)}</p>
               <ArticleLink href={"/blog/"+a.slug+"/"} label="Read deeply"/>
@@ -138,7 +143,7 @@ export default async function HomePage() {
             {stream.map((a,i)=><article className="stream-row" key={a.id}>
               <span className="stream-index">{String(i+1).padStart(2,"0")}</span>
               <div className="stream-main">
-                <Meta category={a.category} minutes={a.read_time_minutes} date={a.published_at}/>
+                <Meta category={a.category} minutes={a.read_time_minutes} date={a.published_at} author={a.author}/>
                 <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
                 <p>{articleSummary(a,150)}</p>
               </div>
