@@ -2374,3 +2374,13 @@ button,input{font:inherit}
   text-overflow:clip !important;
   white-space:normal !important;
 }
+
+/* Publication layout: avoid cropped covers and overflowing article cards. */
+.article-hero-grid > *, .tech-lead-grid > *, .tech-feed-row > *, .latest-card, .tech-stack-row > * {min-width:0}
+.article-copy img, .article-hero-media img, .journal-lead-media img,
+.feed-media img, .latest-media img, .hero-media img {max-width:100%}
+.article-hero-copy h1, .feed-copy h2, .latest-card h3, .article-copy {overflow-wrap:break-word}
+@media(min-width:761px){
+ .article-hero-media img {object-fit:contain;background:#f3f5f8}
+ .article-copy table.table-wide{max-width:min(1180px,calc(100vw - var(--edge) - 290px))}
+}
