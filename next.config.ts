@@ -13,8 +13,7 @@ const nextConfig:NextConfig={
     return [
       {source:"/authors/nikita",destination:"/authors/nancy",permanent:true},
       {source:"/authors/nikita/",destination:"/authors/nancy/",permanent:true},
-      {source:"/authors/ata",destination:"/authors/nancy",permanent:true},
-      {source:"/authors/ata/",destination:"/authors/nancy/",permanent:true}
+
 ];
   }
 };
