@@ -13,7 +13,7 @@ const staticPaths = [
   "/about/",
   "/authors/",
   "/authors/yash/",
-  "/authors/ata/",
+  "/authors/nancy/",
   "/authors/snehil/",
   "/contact/",
   "/privacy/",
