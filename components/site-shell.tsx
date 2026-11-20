@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export function SiteHeader({current}:{current?:"home"|"blog"|"about"}) {
+export function SiteHeader({current}:{current?:"home"|"blog"|"about"|"authors"}) {
   return (
     <>
       <div className="topline">
@@ -25,6 +25,7 @@ export function SiteHeader({current}:{current?:"home"|"blog"|"about"}) {
           <a href="/" aria-current={current==="home" ? "page" : undefined}>Home</a>
           <a href="/blog/" aria-current={current==="blog" ? "page" : undefined}>Journal</a>
           <a href="/about/" aria-current={current==="about" ? "page" : undefined}>About</a>
+          <a href="/authors/" aria-current={current==="authors" ? "page" : undefined}>Authors</a>
           <a href="/contact/">Contact</a>
         </nav>
       </div>
@@ -66,6 +67,7 @@ export function SiteFooter() {
             <a href="/">Home</a>
             <a href="/blog/">Journal</a>
             <a href="/about/">About</a>
+            <a href="/authors/">Our authors</a>
           </div>
 
           <div className="footer-col">
