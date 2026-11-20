@@ -28,8 +28,8 @@ export function CoverImage({src,alt,placement,priority=false}:{
   // Plain server-rendered markup uses Next's image service without its client component.
   // Existing third-party images remain usable without allowing arbitrary optimizer hosts.
   return <img
-    src={local||stored?optimized(1200):source}
-    srcSet={local||stored?imageWidths.map(w=>optimized(w)+" "+w+"w").join(", "):undefined}
+    src={local?optimized(1200):source}
+    srcSet={local?imageWidths.map(w=>optimized(w)+" "+w+"w").join(", "):undefined}
     sizes={sizesByPlacement[placement]}
     alt={alt}
     width={1200}
