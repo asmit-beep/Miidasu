@@ -6,7 +6,7 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "prebuild": "node scripts/check-icons.mjs",
+    "prebuild": "node scripts/check-icons.mjs && node --experimental-strip-types --test scripts/sitemap.test.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"

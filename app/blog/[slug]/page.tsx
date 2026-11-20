@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PageFrame } from "@/components/site-shell";
 import { ArticleToc } from "@/components/article-toc";
 import { getArticleBySlug, listPublishedArticles } from "@/lib/data";
+import { articleLastModifiedAt } from "@/lib/sitemap-utils";
 import { articleSummary, authorSlug, extractHeadings, formatPublishDate, renderMarkdown, readLabel, extractFaq } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -52,7 +53,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
     "headline":article.title,
     "description":article.meta_description||article.excerpt||articleSummary(article,260),
     "datePublished":article.published_at||article.created_at,
-    "dateModified":article.updated_at||article.published_at||article.created_at,
+    "dateModified":articleLastModifiedAt(article)?.toISOString()||article.updated_at||article.published_at||article.created_at,
     ...(article.cover_image_url?{"image":[article.cover_image_url]}:{}),
     "mainEntityOfPage":{"@type":"WebPage","@id":articleUrl},
     "author":{

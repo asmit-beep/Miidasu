@@ -33,3 +33,27 @@ export async function getArticleBySlug(slug:string):Promise<Article|null>{
 export async function getHomepageFeature():Promise<Article|null>{
   return (await cachedArticles()).find(article=>article.featured_on_homepage)??null;
 }
+
+
+/**
+ * The sitemap bypasses the 5-minute public-page cache, so every successful
+ * publication, edit or direct CMS import is discoverable on the next request.
+ * Page through PostgREST to avoid silently losing entries after 1,000 posts.
+ */
+export async function listPublishedSitemapArticles(): Promise<
+  Pick<Article, "slug" | "published_at" | "updated_at" | "created_at">[]
+> {
+  type Row = Pick<Article, "slug" | "published_at" | "updated_at" | "created_at">;
+  const pageSize = 500;
+  const result: Row[] = [];
+  for (let offset = 0; offset < 50_000; offset += pageSize) {
+    const rows = await request<Row[]>(
+      "/rest/v1/articles?select=slug,published_at,updated_at,created_at" +
+      "&status=eq.published&order=id.asc&limit=" + pageSize + "&offset=" + offset,
+    );
+    if (!Array.isArray(rows)) throw new Error("Invalid published sitemap response");
+    result.push(...rows);
+    if (rows.length < pageSize) return result;
+  }
+  throw new Error("More than 50,000 published articles: sitemap index required");
+}
