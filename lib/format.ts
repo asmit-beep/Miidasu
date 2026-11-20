@@ -21,7 +21,7 @@ export function readLabel(minutes:number|null|undefined){
 
 export function authorSlug(author:string){
   const a=author.trim().toLowerCase();
-  if(a.includes("ata")||a.includes("nikita"))return "ata";
+  if(a==="nancy"||a==="nikita"||a==="ata shaikh")return "nancy";
   if(a.includes("snehil"))return "snehil";
   if(a.includes("yash"))return "yash";
   return "";
