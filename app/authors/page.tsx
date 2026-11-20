@@ -9,7 +9,7 @@ export const metadata:Metadata={
 };
 
 export default function AuthorsPage(){
-  return <PageFrame>
+  return <PageFrame current="authors">
     <header className="journal-header">
       <p className="eyebrow">MIIDASU / CONTRIBUTORS</p>
       <h1>Meet the <em>authors.</em></h1>
