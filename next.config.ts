@@ -12,9 +12,8 @@ const nextConfig:NextConfig={
   async redirects(){
     return [
       {source:"/authors/nikita",destination:"/authors/nancy",permanent:true},
-      {source:"/authors/nikita/",destination:"/authors/nancy/",permanent:true},
-
-];
+      {source:"/authors/nikita/",destination:"/authors/nancy/",permanent:true}
+    ];
   }
 };
 
