@@ -41,7 +41,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
     .slice(0,4);
 
   const aSlug=authorSlug(article.author);
-  const displayAuthor=article.author.toLowerCase().includes("nikita") ? "Ata Shaikh" : article.author;
+  const displayAuthor=authorSlug(article.author)==="nancy" ? "Nancy" : article.author;
   const headings=extractHeadings(article.content||"");
   const body=renderMarkdown(article.content||"");
   const articleUrl="https://miidasu.co/blog/"+article.slug+"/";
