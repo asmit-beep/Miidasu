@@ -11,8 +11,10 @@ const nextConfig:NextConfig={
   },
   async redirects(){
     return [
-      {source:"/authors/nikita",destination:"/authors/ata",permanent:true},
-      {source:"/authors/nikita/",destination:"/authors/ata/",permanent:true}
+      {source:"/authors/nikita",destination:"/authors/nancy",permanent:true},
+      {source:"/authors/nikita/",destination:"/authors/nancy/",permanent:true},
+      {source:"/authors/ata",destination:"/authors/nancy",permanent:true},
+      {source:"/authors/ata/",destination:"/authors/nancy/",permanent:true}
 ];
   }
 };
