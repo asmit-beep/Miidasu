@@ -42,7 +42,7 @@ export function CoverImage({src,alt,placement,priority=false}:{
     onError={(event)=>{
       const image=event.currentTarget;
       if (!image.src.endsWith("/og-default.png")) {
-        image.srcSet="";
+        image.srcset="";
         image.src="/og-default.png";
       }
     }}
