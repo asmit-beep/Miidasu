@@ -37,7 +37,10 @@ export default async function HomePage() {
   if (featured) articles = articles.filter(a => a.id !== featured.id);
 
   const top = articles.slice(0,4);
-  const latest = articles.slice(4,10);
+  // The Latest desk must always begin with the newest article, not skip the first four.
+  const latest = [featured, ...articles].filter((item):item is NonNullable<typeof featured>=>Boolean(item))
+    .sort((a,b)=>(Date.parse(b.published_at||b.created_at)||0)-(Date.parse(a.published_at||a.created_at)||0))
+    .slice(0,6);
   const quick = articles.filter(a => (a.read_time_minutes ?? 99) <= 10).slice(0,4);
   const deep = articles.filter(a => (a.read_time_minutes ?? 0) >= 15).slice(0,3);
   const stream = articles.slice(0,12);
