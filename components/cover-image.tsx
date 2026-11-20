@@ -1,3 +1,5 @@
+"use client";
+
 // These widths match the allowlist in next.config.ts.
 const imageWidths=[96,128,160,192,256,320,360,480,640,768,960,1200,1600,1920];
 
@@ -37,5 +39,12 @@ export function CoverImage({src,alt,placement,priority=false}:{
     loading={priority?"eager":"lazy"}
     fetchPriority={priority?"high":undefined}
     decoding="async"
+    onError={(event)=>{
+      const image=event.currentTarget;
+      if (!image.src.endsWith("/og-default.png")) {
+        image.srcSet="";
+        image.src="/og-default.png";
+      }
+    }}
   />;
 }
