@@ -2,7 +2,8 @@ import { CoverImage } from "@/components/cover-image";
 import type { Metadata } from "next";
 import { PageFrame } from "@/components/site-shell";
 import { listPublishedArticles } from "@/lib/data";
-import { articleSummary, formatPublishDate, readLabel } from "@/lib/format";
+import { articleSummary, authorSlug, formatPublishDate, readLabel } from "@/lib/format";
+import { AUTHORS } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +13,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/blog/" }
 };
 
-function Meta({category,minutes,date}:{category:string;minutes:number|null;date?:string|null}) {
-  return <div className="card-meta"><span>{category || "Journal"}</span><span>{readLabel(minutes)}</span>{date&&<span>{formatPublishDate(date)}</span>}</div>;
+function Meta({category,minutes,date,author}:{category:string;minutes:number|null;date?:string|null;author?:string}) {
+  const contributor = AUTHORS.find(item => item.key === authorSlug(author || ""));
+  return <div className="card-meta">
+    <span>{category || "Journal"}</span><span>{readLabel(minutes)}</span>
+    {date&&<span>{formatPublishDate(date)}</span>}
+    {contributor&&<span>By <a href={"/authors/"+contributor.key+"/"}>{contributor.name}</a></span>}
+  </div>;
 }
 
 export default async function BlogPage() {
@@ -38,7 +44,7 @@ export default async function BlogPage() {
         <div className="edge-row tech-blog-lead">
           <article className="blog-lead-main">
             {lead.cover_image_url && <a className="journal-lead-media" href={"/blog/"+lead.slug+"/"}><CoverImage src={lead.cover_image_url} alt={lead.title} placement="journal" priority /></a>}
-            <Meta category={lead.category} minutes={lead.read_time_minutes} date={lead.published_at}/>
+            <Meta category={lead.category} minutes={lead.read_time_minutes} date={lead.published_at} author={lead.author}/>
             <h2><a href={"/blog/"+lead.slug+"/"}>{lead.title}</a></h2>
             <p>{articleSummary(lead,230)}</p>
             <a className="reactive-button text-button" href={"/blog/"+lead.slug+"/"}>Read the story <span>↗</span></a>
@@ -49,7 +55,7 @@ export default async function BlogPage() {
             {side.map((a,i)=><article className="blog-side-row" key={a.id}>
               <span>{String(i+1).padStart(2,"0")}</span>
               <div>
-                <Meta category={a.category} minutes={a.read_time_minutes}/>
+                <Meta category={a.category} minutes={a.read_time_minutes} author={a.author}/>
                 <h3><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h3>
                 <p>{articleSummary(a,120)}</p>
               </div>
@@ -66,7 +72,7 @@ export default async function BlogPage() {
               <span className="feed-index">{String(i+1).padStart(2,"0")}</span>
               {a.cover_image_url && <a className="feed-media" href={"/blog/"+a.slug+"/"}><CoverImage src={a.cover_image_url} alt={a.title} placement="feed" /></a>}
               <div className="feed-copy">
-                <Meta category={a.category} minutes={a.read_time_minutes} date={a.published_at}/>
+                <Meta category={a.category} minutes={a.read_time_minutes} date={a.published_at} author={a.author}/>
                 <h2><a href={"/blog/"+a.slug+"/"}>{a.title}</a></h2>
                 <p>{articleSummary(a,190)}</p>
               </div>
