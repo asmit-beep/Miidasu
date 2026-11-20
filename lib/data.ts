@@ -1,4 +1,3 @@
-import { unstable_cache } from "next/cache";
 import type { Article } from "./types";
 
 const url=(process.env.NEXT_PUBLIC_SUPABASE_URL??"").replace(/\/$/,"");
@@ -16,24 +15,18 @@ async function request<T>(path:string):Promise<T>{
   return text?JSON.parse(text) as T:undefined as T;
 }
 
-// One shared, tag-invalidated snapshot prevents a DB transfer on every public
-// page request. Failed background refreshes retain the previous good snapshot.
-const cachedArticles=unstable_cache(
-  ()=>request<Article[]>("/rest/v1/articles?select=*&status=eq.published&order=published_at.desc.nullslast,created_at.desc"),
-  ["miidasu-published-articles-v2"],
-  {revalidate:300,tags:["miidasu-public-articles"]}
-);
-
+/** Fresh reads keep the home, journal and author archives in sync with every publication. */
 export async function listPublishedArticles():Promise<Article[]>{
-  return cachedArticles();
+  const rows=await request<Article[]>("/rest/v1/articles?select=*&status=eq.published&order=published_at.desc.nullslast,id.desc&limit=1000");
+  return rows.sort((a,b)=>(Date.parse(b.published_at||b.created_at)||0)-(Date.parse(a.published_at||a.created_at)||0)||b.id-a.id);
 }
 export async function getArticleBySlug(slug:string):Promise<Article|null>{
-  return (await cachedArticles()).find(article=>article.slug===slug)??null;
+  const rows=await request<Article[]>("/rest/v1/articles?select=*&status=eq.published&slug=eq."+encodeURIComponent(slug)+"&limit=1");
+  return rows[0]??null;
 }
 export async function getHomepageFeature():Promise<Article|null>{
-  return (await cachedArticles()).find(article=>article.featured_on_homepage)??null;
+  return (await listPublishedArticles()).find(article=>article.featured_on_homepage)??null;
 }
-
 
 /**
  * The sitemap bypasses the 5-minute public-page cache, so every successful
