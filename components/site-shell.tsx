@@ -93,6 +93,6 @@ export function SiteFooter() {
   );
 }
 
-export function PageFrame({children,current}:{children:ReactNode;current?:"home"|"blog"|"about"}) {
+export function PageFrame({children,current}:{children:ReactNode;current?:"home"|"blog"|"about"|"authors"}) {
   return <><SiteHeader current={current}/><main id="main">{children}</main><SiteFooter/></>;
 }
